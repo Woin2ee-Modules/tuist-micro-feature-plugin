@@ -2,11 +2,11 @@ import Foundation
 import ProjectDescription
 
 public protocol MicroFeaturing {
-    func interface() -> Target
-    func source() -> Target
-    func testing() -> Target
-    func tests() -> [Target]
-    func example() -> Target
+    var interface: Target { get }
+    var source: Target { get }
+    var testing: Target { get }
+    var tests: [Target] { get }
+    var example: Target { get }
 }
 
 extension FeatureManifest {
@@ -105,7 +105,7 @@ public struct FeatureManifest: MicroFeaturing {
         self.testType = testType
     }
     
-    public func interface() -> Target {
+    public var interface: Target {
         checkIfCanMakeInterfaceOrTestingOrExampleFeatures()
         
         let sources = (preSourceFilesPath?.pathString ?? "") + "/\(baseName)" + "/Interface"
@@ -138,7 +138,7 @@ public struct FeatureManifest: MicroFeaturing {
         return interfaceTarget
     }
     
-    public func source() -> Target {
+    public var source: Target {
         let sources = (preSourceFilesPath?.pathString ?? "") + "/\(baseName)" + "/Source"
         let featureTargetDependencies = featureDependencies
             .map(\.interfaceName)
@@ -172,7 +172,7 @@ public struct FeatureManifest: MicroFeaturing {
         return sourceTarget
     }
     
-    public func testing() -> Target {
+    public var testing: Target {
         checkIfCanMakeInterfaceOrTestingOrExampleFeatures()
         
         let sources = (preSourceFilesPath?.pathString ?? "") + "/\(baseName)" + "/Testing"
@@ -208,20 +208,20 @@ public struct FeatureManifest: MicroFeaturing {
         return testingTarget
     }
     
-    public func tests() -> [Target] {
+    public var tests: [Target] {
         switch testType {
         case .unitTests:
-            return [unitTestsTarget()]
+            return [unitTestsTarget]
         case .uiTests:
-            return [uiTestsTarget()]
+            return [uiTestsTarget]
         case .both:
-            return [unitTestsTarget(), uiTestsTarget()]
+            return [unitTestsTarget, uiTestsTarget]
         default:
             return []
         }
     }
     
-    public func example() -> Target {
+    public var example: Target {
         guard let exampleProduct = exampleProduct else {
             fatalError("There isn't specified product for example feature.")
         }
@@ -268,7 +268,7 @@ public struct FeatureManifest: MicroFeaturing {
 // MARK: Helpers
 extension FeatureManifest {
     
-    private func unitTestsTarget() -> Target {
+    private var unitTestsTarget: Target {
         let sources = (preSourceFilesPath?.pathString ?? "") + "/\(baseName)" + "/Tests" + "/UnitTests"
         let featureTargetDependencies = featureDependencies
             .map(\.sourceName)
@@ -305,7 +305,7 @@ extension FeatureManifest {
         return unitTestsTarget
     }
     
-    private func uiTestsTarget() -> Target {
+    private var uiTestsTarget: Target {
         let sources = (preSourceFilesPath?.pathString ?? "") + "/\(baseName)" + "/Tests" + "/UITests"
         let featureTargetDependencies = featureDependencies
             .map(\.sourceName)
