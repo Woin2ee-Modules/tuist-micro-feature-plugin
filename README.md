@@ -1,2 +1,2 @@
 # tuist-modularization-plugin
-Tuist plugin helping easy modularization.
+Tuist plugin helping to easy construct micro feature.
