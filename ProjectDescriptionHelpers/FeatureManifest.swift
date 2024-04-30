@@ -5,7 +5,8 @@ public protocol MicroFeaturing {
     var interface: Target { get }
     var source: Target { get }
     var testing: Target { get }
-    var tests: [Target] { get }
+    var unitTests: Target { get }
+    var uiTests: Target { get }
     var example: Target { get }
 }
 
@@ -208,17 +209,78 @@ public struct FeatureManifest: MicroFeaturing {
         return testingTarget
     }
     
-    public var tests: [Target] {
-        switch testType {
-        case .unitTests:
-            return [unitTestsTarget]
-        case .uiTests:
-            return [uiTestsTarget]
-        case .both:
-            return [unitTestsTarget, uiTestsTarget]
-        default:
-            return []
-        }
+    public var unitTests: Target {
+        let sources = (preSourceFilesPath?.pathString ?? "") + "/\(baseName)" + "/Tests" + "/UnitTests"
+        let featureTargetDependencies = featureDependencies
+            .map(\.sourceName)
+            .map { TargetDependency.target(name: $0) }
+        + featureDependencies
+            .map(\.testingName)
+            .map { TargetDependency.target(name: $0) }
+        
+        let unitTestsTarget = Target.target(
+            name: unitTestsName,
+            destinations: destinations,
+            product: .unitTests,
+            productName: nil,
+            bundleId: unitTestsName,
+            deploymentTargets: deploymentTargets,
+            infoPlist: .default,
+            sources: "\(sources)",
+            resources: nil,
+            copyFiles: nil,
+            headers: nil,
+            entitlements: nil,
+            scripts: [],
+            dependencies: featureTargetDependencies + externalDependencies + testsDependencies,
+            settings: nil,
+            coreDataModels: [],
+            environmentVariables: [:],
+            launchArguments: [],
+            additionalFiles: [],
+            buildRules: [],
+            mergedBinaryType: .disabled,
+            mergeable: false
+        )
+        
+        return unitTestsTarget
+    }
+    
+    public var uiTests: Target {
+        let sources = (preSourceFilesPath?.pathString ?? "") + "/\(baseName)" + "/Tests" + "/UITests"
+        let featureTargetDependencies = featureDependencies
+            .map(\.sourceName)
+            .map { TargetDependency.target(name: $0) }
+        + featureDependencies
+            .map(\.testingName)
+            .map { TargetDependency.target(name: $0) }
+        
+        let uiTestsTarget = Target.target(
+            name: uiTestsName,
+            destinations: destinations,
+            product: .uiTests,
+            productName: nil,
+            bundleId: uiTestsName,
+            deploymentTargets: deploymentTargets,
+            infoPlist: .default,
+            sources: "\(sources)",
+            resources: nil,
+            copyFiles: [],
+            headers: nil,
+            entitlements: nil,
+            scripts: [],
+            dependencies: featureTargetDependencies + externalDependencies + testsDependencies,
+            settings: nil,
+            coreDataModels: [],
+            environmentVariables: [:],
+            launchArguments: [],
+            additionalFiles: [],
+            buildRules: [],
+            mergedBinaryType: .disabled,
+            mergeable: false
+        )
+        
+        return uiTestsTarget
     }
     
     public var example: Target {
@@ -267,80 +329,6 @@ public struct FeatureManifest: MicroFeaturing {
 
 // MARK: Helpers
 extension FeatureManifest {
-    
-    private var unitTestsTarget: Target {
-        let sources = (preSourceFilesPath?.pathString ?? "") + "/\(baseName)" + "/Tests" + "/UnitTests"
-        let featureTargetDependencies = featureDependencies
-            .map(\.sourceName)
-            .map { TargetDependency.target(name: $0) }
-        + featureDependencies
-            .map(\.testingName)
-            .map { TargetDependency.target(name: $0) }
-        
-        let unitTestsTarget = Target.target(
-            name: unitTestsName,
-            destinations: destinations,
-            product: .unitTests,
-            productName: nil,
-            bundleId: unitTestsName,
-            deploymentTargets: deploymentTargets,
-            infoPlist: .default,
-            sources: "\(sources)",
-            resources: nil,
-            copyFiles: nil,
-            headers: nil,
-            entitlements: nil,
-            scripts: [],
-            dependencies: featureTargetDependencies + externalDependencies + testsDependencies,
-            settings: nil,
-            coreDataModels: [],
-            environmentVariables: [:],
-            launchArguments: [],
-            additionalFiles: [],
-            buildRules: [],
-            mergedBinaryType: .disabled,
-            mergeable: false
-        )
-        
-        return unitTestsTarget
-    }
-    
-    private var uiTestsTarget: Target {
-        let sources = (preSourceFilesPath?.pathString ?? "") + "/\(baseName)" + "/Tests" + "/UITests"
-        let featureTargetDependencies = featureDependencies
-            .map(\.sourceName)
-            .map { TargetDependency.target(name: $0) }
-        + featureDependencies
-            .map(\.testingName)
-            .map { TargetDependency.target(name: $0) }
-        
-        let uiTestsTarget = Target.target(
-            name: uiTestsName,
-            destinations: destinations,
-            product: .uiTests,
-            productName: nil,
-            bundleId: uiTestsName,
-            deploymentTargets: deploymentTargets,
-            infoPlist: .default,
-            sources: "\(sources)",
-            resources: nil,
-            copyFiles: [],
-            headers: nil,
-            entitlements: nil,
-            scripts: [],
-            dependencies: featureTargetDependencies + externalDependencies + testsDependencies,
-            settings: nil,
-            coreDataModels: [],
-            environmentVariables: [:],
-            launchArguments: [],
-            additionalFiles: [],
-            buildRules: [],
-            mergedBinaryType: .disabled,
-            mergeable: false
-        )
-        
-        return uiTestsTarget
-    }
     
     private var iOSExampleInfoPlist: InfoPlist {
         .dictionary([
