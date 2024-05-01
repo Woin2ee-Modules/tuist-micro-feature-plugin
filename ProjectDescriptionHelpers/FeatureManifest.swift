@@ -91,12 +91,11 @@ public struct FeatureManifest {
     /// A settings for the source module only. It is useful when source module is app product.
     let sourceSettings: Settings?
     
-    let testType: TestType?
-    
     let adoptedModules: Set<MicroFeatureModuleType>
     
     /// - Parameters:
     ///   - baseName: The name of the feature. Must be unique.
+    ///   - baseBundleID: The bundle ID to place before the each module name.
     ///   - destinations: .
     ///   - sourceProduct: A product type of the source module.
     ///   - exampleProduct: A product type of the only example module only.
@@ -111,8 +110,7 @@ public struct FeatureManifest {
     ///   - externalDependencies: .
     ///   - testsDependencies: Dependencies only using test targets.
     ///   - sourceSettings: A settings for the source module only. It is useful when source module is app product.
-    ///   - testType: .
-    ///   - hasInterface: A boolean value indicating whether this feature has interface module.
+    ///   - adoptedModules: The modules this feature uses.
     public init(
         baseName: String,
         baseBundleID: String,
@@ -129,7 +127,6 @@ public struct FeatureManifest {
         externalDependencies: [TargetDependency] = [],
         testsDependencies: [TargetDependency] = [],
         sourceSettings: Settings? = nil,
-        testType: TestType? = nil,
         adoptedModules: Set<MicroFeatureModuleType>
     ) {
         self.baseName = baseName
@@ -147,7 +144,6 @@ public struct FeatureManifest {
         self.externalDependencies = externalDependencies
         self.testsDependencies = testsDependencies
         self.sourceSettings = sourceSettings
-        self.testType = testType
         self.adoptedModules = adoptedModules
     }
 }
