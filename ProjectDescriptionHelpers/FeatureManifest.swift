@@ -70,6 +70,23 @@ public struct FeatureManifest: MicroFeaturing {
     
     let testType: TestType?
     
+    /// - Parameters:
+    ///   - baseName: The name of the feature. Must be unique.
+    ///   - destinations: .
+    ///   - sourceProduct: A product type of the source feature.
+    ///   - exampleProduct: A product type of the only example feature only.
+    ///   - deploymentTargets: .
+    ///   - sourceInfoPlist: An info plist of the source feature.
+    ///   - preSourceFilesPath: A prefix to use when you want to group source files.
+    ///   - resourcesForInterface: Resource files of interface feature.
+    ///   - resourcesForSource: Resource files of source feature.
+    ///   - sourceEntitlements: .
+    ///   - scripts: It will execute in build phase of the interface feature.
+    ///   - featureDependencies: Dependencies between other features.
+    ///   - externalDependencies: .
+    ///   - testsDependencies: Dependencies only using test targets.
+    ///   - sourceSettings: A settings for the source feature only. It is useful when source feature is app product.
+    ///   - testType: .
     public init(
         baseName: String,
         destinations: Destinations,
