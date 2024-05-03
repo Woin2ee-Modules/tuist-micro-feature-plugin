@@ -539,6 +539,7 @@ extension FeatureManifest {
             .staticFramework,
             .dynamicLibrary,
             .staticLibrary,
+            .macro,
             // Maybe there are more.
         ]
         precondition(products.contains(sourceProduct), "🛑 It can't make Interface or Testing or Example modules with \(sourceProduct).")
