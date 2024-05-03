@@ -89,6 +89,27 @@ Then, a Graph is formed as follows
 
 <img src="https://github.com/Woin2ee-Modules/tuist-micro-feature-plugin/assets/81426024/6ebaad7f-b1bf-41c1-a46b-14bca4f4e954" width="700">
 
+## Detail points
+
+The below are arbitrary rules of only this plugin to easy construct µFeatures Architecture.
+
+- If interface module doesn't exist, you can't make testing module.
+- If any feature's interface module doesn't exist, other feature that depends on the one actually depends on source module when you configure dependencies between multiple features.
+- Interface, Testing, Example modules can't be maked unless product type of source module is framework or library.
+- The path of Source files is fixed. Follow is example of sources directory structure,
+  <pre>
+    ㄴ Root (Manifest file)
+      ㄴ Sources
+        ㄴ Feature
+          ㄴ Interface
+          ㄴ Source
+          ㄴ Testing
+          ㄴ Example
+          ㄴ Tests
+            ㄴ UnitTests
+            ㄴ UITests
+  </pre>
+
 ## Compatibility
 
 - [Tuist](https://github.com/tuist/tuist) : 4.11.0 ~
