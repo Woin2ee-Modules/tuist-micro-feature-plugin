@@ -523,6 +523,15 @@ extension FeatureManifest {
                     ]
                 ]
             ],
+            "CFBundleLocalizations": [
+                "en",
+                "ko",
+                "zh",
+                "de",
+                "it",
+                "fr",
+                "ja",
+            ],
             "UISupportedInterfaceOrientations": [
                 "UIInterfaceOrientationLandscapeLeft",
                 "UIInterfaceOrientationLandscapeRight",
