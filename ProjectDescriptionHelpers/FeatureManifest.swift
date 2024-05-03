@@ -529,6 +529,7 @@ extension FeatureManifest {
                 "UIInterfaceOrientationPortrait",
                 "UIInterfaceOrientationPortraitUpsideDown"
             ],
+            "UILaunchStoryboardName": "",
         ])
     }
     
