@@ -85,7 +85,7 @@ let project = Project(
 )
 ```
 
-Then, a Graph is formed as follows
+Then, a Graph is formed as follows. And it matches dependency relationships described in the `µFeatures Architecture`.
 
 <img src="https://github.com/Woin2ee-Modules/tuist-micro-feature-plugin/assets/81426024/6ebaad7f-b1bf-41c1-a46b-14bca4f4e954" width="700">
 
