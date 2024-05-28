@@ -9,7 +9,10 @@ let project = Project(
             product: .framework,
             bundleId: "org.woin2ee.TuistMicroFeaturePlugin",
             deploymentTargets: .macOS("14.0"),
-            sources: "TuistMicroFeaturePlugin/**",
+            sources: [
+                "Plugin.swift",
+                "ProjectDescriptionHelpers/**",
+            ],
             settings: .settings(base: [
                 "FRAMEWORK_SEARCH_PATHS": "$(SRCROOT)"
             ])
