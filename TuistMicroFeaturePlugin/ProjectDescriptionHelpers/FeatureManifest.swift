@@ -91,6 +91,7 @@ public struct FeatureManifest {
     /// A settings for the source module only. It is useful when source module is app product.
     let sourceSettings: Settings?
     
+    /// The modules this feature uses.
     let adoptedModules: Set<MicroFeatureModuleType>
     
     /// - Parameters:
@@ -266,9 +267,6 @@ extension FeatureManifest: MicroFeaturing {
         sources += "/\(baseName)/Testing/**"
         
         let featureTargetDependencies = [TargetDependency.target(name: interfaceName)]
-        + featureDependencies
-            .map(\.interfaceName)
-            .map { TargetDependency.target(name: $0) }
         
         let testingTarget = Target.target(
             name: testingName,
@@ -312,14 +310,9 @@ extension FeatureManifest: MicroFeaturing {
         sources += "/\(baseName)/Tests/UnitTests/**"
         
         var featureTargetDependencies = [TargetDependency.target(name: sourceName)]
-        + featureDependencies
-            .map(\.sourceName)
-            .map { TargetDependency.target(name: $0) }
-        + featureDependencies
-            .compactMap { $0.hasTestingModule ? $0.testingName : nil }
-            .map { TargetDependency.target(name: $0) }
-        if hasTestingModule {
-            featureTargetDependencies.append(TargetDependency.target(name: testingName))
+        
+        featureDependencies.forEach { featureDependency in
+            resolveAllDescendants(of: featureDependency, to: &featureTargetDependencies)
         }
         
         let unitTestsTarget = Target.target(
@@ -361,14 +354,9 @@ extension FeatureManifest: MicroFeaturing {
         sources += "/\(baseName)/Tests/UITests/**"
         
         var featureTargetDependencies = [TargetDependency.target(name: sourceName)]
-        + featureDependencies
-            .map(\.sourceName)
-            .map { TargetDependency.target(name: $0) }
-        + featureDependencies
-            .compactMap { $0.hasTestingModule ? $0.testingName : nil }
-            .map { TargetDependency.target(name: $0) }
-        if hasTestingModule {
-            featureTargetDependencies.append(TargetDependency.target(name: testingName))
+        
+        featureDependencies.forEach { featureDependency in
+            resolveAllDescendants(of: featureDependency, to: &featureTargetDependencies)
         }
         
         let uiTestsTarget = Target.target(
@@ -456,6 +444,7 @@ extension FeatureManifest: MicroFeaturing {
 }
 
 // MARK: Helpers
+
 extension FeatureManifest {
     
     var hasInterfaceModule: Bool {
@@ -552,5 +541,26 @@ extension FeatureManifest {
             // Maybe there are more.
         ]
         precondition(products.contains(sourceProduct), "🛑 It can't make Interface or Testing or Example modules with \(sourceProduct).")
+    }
+    
+    /// `featureDependency`의 모든 하위 종속성에 대해 Source module과 Testing module을 `dependencies`에 추가합니다.
+    private func resolveAllDescendants(
+        of featureDependency: FeatureManifest,
+        to dependencies: inout [TargetDependency]
+    ) {
+        guard featureDependency.hasSourceModule else {
+            logger.error("🛑 \(featureDependency.baseName) feature don't have source module.")
+            return
+        }
+        
+        dependencies.append(TargetDependency.target(name: featureDependency.sourceName))
+        
+        if featureDependency.hasTestingModule {
+            dependencies.append(TargetDependency.target(name: featureDependency.testingName))
+        }
+        
+        featureDependency.featureDependencies.forEach { featureDependency in
+            resolveAllDescendants(of: featureDependency, to: &dependencies)
+        }
     }
 }
