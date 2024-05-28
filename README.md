@@ -87,15 +87,17 @@ let project = Project(
 
 Then, a Graph is formed as follows. It matches dependency relationships described in the `µFeatures Architecture`.
 
-<img src="https://github.com/Woin2ee-Modules/tuist-micro-feature-plugin/assets/81426024/6ebaad7f-b1bf-41c1-a46b-14bca4f4e954" width="700">
+<img src="https://github.com/Woin2ee-Modules/tuist-micro-feature-plugin/assets/81426024/8eaf7533-d599-4130-a1c8-3d1ad82fc02b" width="500">
+
 
 ## Detail points
 
-The below are arbitrary rules of only this plugin to easy construct µFeatures Architecture.
+The following may be arbitrary rules of only this plugin to easy construct µFeatures Architecture.
 
 - If interface module doesn't exist, you can't make testing module.
 - If any feature's interface module doesn't exist, other feature that depends on the one actually depends on source module when you configure dependencies between multiple features.
 - Interface, Testing, Example modules can't be maked unless product type of source module is framework or library.
+- Each test modules depends on all source/testing modules of its descendent dependencies.
 - The path of Source files is fixed. Follow is example of sources directory structure,
   <pre>
     ㄴ Root (Manifest file)
