@@ -52,7 +52,7 @@ public struct FeatureManifest {
     let baseName: String
     
     /// A base bundle ID that will be prefix of feature's all modules.
-    /// For example, `"micro-feature.com.tuist"`
+    /// For example, `"com.tuist.micro-feature-plugin"`
     let baseBundleID: String
     
     let destinations: Destinations
@@ -80,10 +80,10 @@ public struct FeatureManifest {
     /// It will execute in build phase of the interface module.
     let scripts: [TargetScript]
     
-    /// Dependencies between other features.
+    /// Dependencies between the other features.
     let featureDependencies: [FeatureManifest]
     
-    let externalDependencies: [TargetDependency]
+    let basicDependencies: [TargetDependency]
     
     /// Dependencies only using test targets.
     let testsDependencies: [TargetDependency]
@@ -107,8 +107,8 @@ public struct FeatureManifest {
     ///   - resourcesForSource: Resource files of source module.
     ///   - sourceEntitlements: .
     ///   - scripts: It will execute in build phase of the interface module.
-    ///   - featureDependencies: Dependencies between other features.
-    ///   - externalDependencies: .
+    ///   - featureDependencies: Dependencies between the other features.
+    ///   - basicDependencies: Dependencies that all modules depend on.
     ///   - testsDependencies: Dependencies only using test targets.
     ///   - sourceSettings: A settings for the source module only. It is useful when source module is app product.
     ///   - adoptedModules: The modules this feature uses.
@@ -125,7 +125,7 @@ public struct FeatureManifest {
         sourceEntitlements: Entitlements? = nil,
         scripts: [TargetScript] = [],
         featureDependencies: [FeatureManifest] = [],
-        externalDependencies: [TargetDependency] = [],
+        basicDependencies: [TargetDependency] = [],
         testsDependencies: [TargetDependency] = [],
         sourceSettings: Settings? = nil,
         adoptedModules: Set<MicroFeatureModuleType>
@@ -142,7 +142,7 @@ public struct FeatureManifest {
         self.sourceEntitlements = sourceEntitlements
         self.scripts = scripts
         self.featureDependencies = featureDependencies
-        self.externalDependencies = externalDependencies
+        self.basicDependencies = basicDependencies
         self.testsDependencies = testsDependencies
         self.sourceSettings = sourceSettings
         self.adoptedModules = adoptedModules
@@ -172,7 +172,7 @@ extension FeatureManifest: MicroFeaturing {
         guard hasInterfaceModule else { fatalError("🛑 \(baseName) feature don't have interface module.") }
         checkIfSourceModuleIsFrameworkOrLibrary()
         
-        let bundleID = baseBundleID + "." + interfaceName
+        let bundleID = baseBundleID + "." + interfaceName.toValidInBundleIdentifier()
         var sources = "Sources"
         if let sourceFilesGroupPath = sourceFilesGroupPath {
             sources += "/\(sourceFilesGroupPath)"
@@ -193,7 +193,7 @@ extension FeatureManifest: MicroFeaturing {
             headers: nil,
             entitlements: nil,
             scripts: scripts,
-            dependencies: externalDependencies,
+            dependencies: basicDependencies,
             settings: nil,
             coreDataModels: [],
             environmentVariables: [:],
@@ -210,7 +210,7 @@ extension FeatureManifest: MicroFeaturing {
     public var source: Target {
         guard hasSourceModule else { fatalError("🛑 \(baseName) feature don't have source module.") }
         
-        let bundleID = baseBundleID + "." + sourceName
+        let bundleID = baseBundleID + "." + sourceName.toValidInBundleIdentifier()
         var sources = "Sources"
         if let sourceFilesGroupPath = sourceFilesGroupPath {
             sources += "/\(sourceFilesGroupPath)"
@@ -238,7 +238,7 @@ extension FeatureManifest: MicroFeaturing {
             headers: nil,
             entitlements: sourceEntitlements,
             scripts: [],
-            dependencies: featureTargetDependencies + externalDependencies,
+            dependencies: featureTargetDependencies + basicDependencies,
             settings: sourceSettings,
             coreDataModels: [],
             environmentVariables: [:],
@@ -259,7 +259,7 @@ extension FeatureManifest: MicroFeaturing {
         }
         checkIfSourceModuleIsFrameworkOrLibrary()
         
-        let bundleID = baseBundleID + "." + testingName
+        let bundleID = baseBundleID + "." + testingName.toValidInBundleIdentifier()
         var sources = "Sources"
         if let sourceFilesGroupPath = sourceFilesGroupPath {
             sources += "/\(sourceFilesGroupPath)"
@@ -282,7 +282,7 @@ extension FeatureManifest: MicroFeaturing {
             headers: nil,
             entitlements: nil,
             scripts: [],
-            dependencies: featureTargetDependencies + externalDependencies,
+            dependencies: featureTargetDependencies + basicDependencies,
             settings: nil,
             coreDataModels: [],
             environmentVariables: [:],
@@ -302,7 +302,7 @@ extension FeatureManifest: MicroFeaturing {
             fatalError("🛑 \(baseName) feature requires source module to have unit tests module.")
         }
         
-        let bundleID = baseBundleID + "." + unitTestsName
+        let bundleID = baseBundleID + "." + unitTestsName.toValidInBundleIdentifier()
         var sources = "Sources"
         if let sourceFilesGroupPath = sourceFilesGroupPath {
             sources += "/\(sourceFilesGroupPath)"
@@ -329,7 +329,7 @@ extension FeatureManifest: MicroFeaturing {
             headers: nil,
             entitlements: nil,
             scripts: [],
-            dependencies: featureTargetDependencies + externalDependencies + testsDependencies,
+            dependencies: featureTargetDependencies + basicDependencies + testsDependencies,
             settings: nil,
             coreDataModels: [],
             environmentVariables: [:],
@@ -346,7 +346,7 @@ extension FeatureManifest: MicroFeaturing {
     public var uiTests: Target {
         guard hasUITestsModule else { fatalError("🛑 \(baseName) feature don't have ui tests module.") }
         
-        let bundleID = baseBundleID + "." + uiTestsName
+        let bundleID = baseBundleID + "." + uiTestsName.toValidInBundleIdentifier()
         var sources = "Sources"
         if let sourceFilesGroupPath = sourceFilesGroupPath {
             sources += "/\(sourceFilesGroupPath)"
@@ -373,7 +373,7 @@ extension FeatureManifest: MicroFeaturing {
             headers: nil,
             entitlements: nil,
             scripts: [],
-            dependencies: featureTargetDependencies + externalDependencies + testsDependencies,
+            dependencies: featureTargetDependencies + basicDependencies + testsDependencies,
             settings: nil,
             coreDataModels: [],
             environmentVariables: [:],
@@ -396,7 +396,7 @@ extension FeatureManifest: MicroFeaturing {
         
         checkIfSourceModuleIsFrameworkOrLibrary()
         
-        let bundleID = baseBundleID + "." + exampleName
+        let bundleID = baseBundleID + "." + exampleName.toValidInBundleIdentifier()
         var sources = "Sources"
         if let sourceFilesGroupPath = sourceFilesGroupPath {
             sources += "/\(sourceFilesGroupPath)"
@@ -428,7 +428,7 @@ extension FeatureManifest: MicroFeaturing {
             headers: nil,
             entitlements: nil,
             scripts: [],
-            dependencies: featureTargetDependencies + externalDependencies,
+            dependencies: featureTargetDependencies + basicDependencies,
             settings: nil,
             coreDataModels: [],
             environmentVariables: [:],

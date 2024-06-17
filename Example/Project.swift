@@ -24,6 +24,9 @@ let firstUseCase = FeatureManifest(
     featureDependencies: [
         firstService,
     ],
+    basicDependencies: [
+        .external(name: "RxSwift"),
+    ],
     adoptedModules: [.interface, .source, .unitTests]
 )
 
