@@ -137,4 +137,74 @@ final class TuistMicroFeaturePluginTests: XCTestCase {
         XCTAssertTrue(dependenciesNames.contains("FirstServiceSource"))
         XCTAssertTrue(dependenciesNames.contains("FirstServiceTesting"))
     }
+    
+    func test_onlyOnceDependingStaticFramework_whenHasInterface() {
+        // Given
+        let featureManifest = FeatureManifest(
+            baseName: "Feature",
+            baseBundleID: "Feature",
+            destinations: .iOS,
+            sourceProduct: .framework,
+            deploymentTargets: .iOS("17.0"),
+            basicDependencies: [
+                .external(name: "FoundationPlus")
+            ],
+            adoptedModules: [.interface, .source, .testing, .unitTests]
+        )
+        
+        // When
+        let interfaceTarget = featureManifest.interface
+        let testingTarget = featureManifest.testing
+        let sourceTarget = featureManifest.source
+        let unitTestsTarget = featureManifest.unitTests
+        
+        // Then
+        XCTAssertEqual(Set(interfaceTarget.dependencies), Set([
+            .external(name: "FoundationPlus"),
+        ]))
+        XCTAssertEqual(Set(sourceTarget.dependencies), Set([
+            .target(name: "FeatureInterface"),
+        ]))
+        XCTAssertEqual(Set(testingTarget.dependencies), Set([
+            .target(name: "FeatureInterface"),
+        ]))
+        XCTAssertEqual(Set(unitTestsTarget.dependencies), Set([
+            .target(name: "FeatureSource"),
+        ]))
+    }
+    
+    func test_onlyOnceDependingStaticFramework_whenHasNotInterface() {
+        // Given
+        let featureManifest = FeatureManifest(
+            baseName: "Feature",
+            baseBundleID: "Feature",
+            destinations: .iOS,
+            sourceProduct: .framework,
+            deploymentTargets: .iOS("17.0"),
+            basicDependencies: [
+                .external(name: "FoundationPlus")
+            ],
+            adoptedModules: [.source, .unitTests, .uiTests, .example(product: .app)]
+        )
+        
+        // When
+        let sourceTarget = featureManifest.source
+        let unitTestsTarget = featureManifest.unitTests
+        let uiTestsTarget = featureManifest.uiTests
+        let exampleTarget = featureManifest.example
+        
+        // Then
+        XCTAssertEqual(Set(sourceTarget.dependencies), Set([
+            .external(name: "FoundationPlus")
+        ]))
+        XCTAssertEqual(Set(unitTestsTarget.dependencies), Set([
+            .target(name: "FeatureSource"),
+        ]))
+        XCTAssertEqual(Set(uiTestsTarget.dependencies), Set([
+            .target(name: "FeatureSource"),
+        ]))
+        XCTAssertEqual(Set(exampleTarget.dependencies), Set([
+            .target(name: "FeatureSource"),
+        ]))
+    }
 }

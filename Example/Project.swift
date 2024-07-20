@@ -11,6 +11,9 @@ let firstService = FeatureManifest(
     sourceProduct: .framework,
     deploymentTargets: iOSDeploymentTargets,
     sourceFilesGroupPath: "Services",
+    basicDependencies: [
+        .external(name: "FoundationPlus"),
+    ],
     adoptedModules: [.interface, .source, .testing, .unitTests]
 )
 

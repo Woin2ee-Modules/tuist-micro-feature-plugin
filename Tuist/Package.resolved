@@ -1,6 +1,15 @@
 {
   "pins" : [
     {
+      "identity" : "foundationplus",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Woin2ee-Modules/FoundationPlus.git",
+      "state" : {
+        "revision" : "5fa0787a2bcc1023a77928d4130eea5107312dd2",
+        "version" : "1.4.2"
+      }
+    },
+    {
       "identity" : "rxswift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ReactiveX/RxSwift.git",

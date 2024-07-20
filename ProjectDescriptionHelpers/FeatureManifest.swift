@@ -3,44 +3,44 @@ import ProjectDescription
 
 public protocol MicroFeaturing {
     
-    /// Resolve interface module.
+    /// A interface module.
     ///
-    /// If failed to resolve the target, it will may occurs fatal error.
+    /// If the `interface` module is not adopted in the `FeatureManifest`, a fatal error is occured.
     ///
     /// - Note: It's recommended that you use `resolveModules()` method instead of using this property directly.
     var interface: Target { get }
     
-    /// Resolve source module.
+    /// A source module.
     ///
-    /// If failed to resolve the target, it will may occurs fatal error.
+    /// If the `source` module is not adopted in the `FeatureManifest`, a fatal error is occured.
     ///
     /// - Note: It's recommended that you use `resolveModules()` method instead of using this property directly.
     var source: Target { get }
     
-    /// Resolve testing module.
+    /// A testing module.
     ///
-    /// If failed to resolve the target, it will may occurs fatal error.
+    /// If the `testing` module is not adopted in the `FeatureManifest`, a fatal error is occured.
     ///
     /// - Note: It's recommended that you use `resolveModules()` method instead of using this property directly.
     var testing: Target { get }
     
-    /// Resolve unit tests module.
+    /// A unit tests module.
     ///
-    /// If failed to resolve the target, it will may occurs fatal error.
+    /// If the `unitTests` module is not adopted in the `FeatureManifest`, a fatal error is occured.
     ///
     /// - Note: It's recommended that you use `resolveModules()` method instead of using this property directly.
     var unitTests: Target { get }
     
-    /// Resolve ui tests module.
+    /// A ui tests module.
     ///
-    /// If failed to resolve the target, it will may occurs fatal error.
+    /// If the `uiTests` module is not adopted in the `FeatureManifest`, a fatal error is occured.
     ///
     /// - Note: It's recommended that you use `resolveModules()` method instead of using this property directly.
     var uiTests: Target { get }
     
-    /// Resolve example module.
+    /// A example module.
     ///
-    /// If failed to resolve the target, it will may occurs fatal error.
+    /// If the `example` module is not adopted in the `FeatureManifest`, a fatal error is occured.
     ///
     /// - Note: It's recommended that you use `resolveModules()` method instead of using this property directly.
     var example: Target { get }
@@ -179,7 +179,7 @@ extension FeatureManifest: MicroFeaturing {
         }
         sources += "/\(baseName)/Interface/**"
         
-        let interfaceTarget = Target.target(
+        return Target.target(
             name: interfaceName,
             destinations: destinations,
             product: .framework,
@@ -203,8 +203,6 @@ extension FeatureManifest: MicroFeaturing {
             mergedBinaryType: .disabled,
             mergeable: false
         )
-        
-        return interfaceTarget
     }
     
     public var source: Target {
@@ -217,14 +215,16 @@ extension FeatureManifest: MicroFeaturing {
         }
         sources += "/\(baseName)/Source/**"
         
-        var featureTargetDependencies = featureDependencies
+        var dependencies = featureDependencies
             .map { $0.hasInterfaceModule ? $0.interfaceName : $0.sourceName }
             .map { TargetDependency.target(name: $0) }
         if hasInterfaceModule {
-            featureTargetDependencies.append(TargetDependency.target(name: interfaceName))
+            dependencies.append(TargetDependency.target(name: interfaceName))
+        } else {
+            dependencies += basicDependencies
         }
         
-        let sourceTarget = Target.target(
+        return Target.target(
             name: sourceName,
             destinations: destinations,
             product: sourceProduct,
@@ -238,7 +238,7 @@ extension FeatureManifest: MicroFeaturing {
             headers: nil,
             entitlements: sourceEntitlements,
             scripts: [],
-            dependencies: featureTargetDependencies + basicDependencies,
+            dependencies: dependencies,
             settings: sourceSettings,
             coreDataModels: [],
             environmentVariables: [:],
@@ -248,8 +248,6 @@ extension FeatureManifest: MicroFeaturing {
             mergedBinaryType: .disabled,
             mergeable: false
         )
-        
-        return sourceTarget
     }
     
     public var testing: Target {
@@ -268,7 +266,7 @@ extension FeatureManifest: MicroFeaturing {
         
         let featureTargetDependencies = [TargetDependency.target(name: interfaceName)]
         
-        let testingTarget = Target.target(
+        return Target.target(
             name: testingName,
             destinations: destinations,
             product: .framework,
@@ -282,7 +280,7 @@ extension FeatureManifest: MicroFeaturing {
             headers: nil,
             entitlements: nil,
             scripts: [],
-            dependencies: featureTargetDependencies + basicDependencies,
+            dependencies: featureTargetDependencies,
             settings: nil,
             coreDataModels: [],
             environmentVariables: [:],
@@ -292,8 +290,6 @@ extension FeatureManifest: MicroFeaturing {
             mergedBinaryType: .disabled,
             mergeable: false
         )
-        
-        return testingTarget
     }
     
     public var unitTests: Target {
@@ -315,7 +311,7 @@ extension FeatureManifest: MicroFeaturing {
             resolveAllDescendants(of: featureDependency, to: &featureTargetDependencies)
         }
         
-        let unitTestsTarget = Target.target(
+        return Target.target(
             name: unitTestsName,
             destinations: destinations,
             product: .unitTests,
@@ -329,7 +325,7 @@ extension FeatureManifest: MicroFeaturing {
             headers: nil,
             entitlements: nil,
             scripts: [],
-            dependencies: featureTargetDependencies + basicDependencies + testsDependencies,
+            dependencies: featureTargetDependencies + testsDependencies,
             settings: nil,
             coreDataModels: [],
             environmentVariables: [:],
@@ -339,8 +335,6 @@ extension FeatureManifest: MicroFeaturing {
             mergedBinaryType: .disabled,
             mergeable: false
         )
-        
-        return unitTestsTarget
     }
     
     public var uiTests: Target {
@@ -359,7 +353,7 @@ extension FeatureManifest: MicroFeaturing {
             resolveAllDescendants(of: featureDependency, to: &featureTargetDependencies)
         }
         
-        let uiTestsTarget = Target.target(
+        return Target.target(
             name: uiTestsName,
             destinations: destinations,
             product: .uiTests,
@@ -373,7 +367,7 @@ extension FeatureManifest: MicroFeaturing {
             headers: nil,
             entitlements: nil,
             scripts: [],
-            dependencies: featureTargetDependencies + basicDependencies + testsDependencies,
+            dependencies: featureTargetDependencies + testsDependencies,
             settings: nil,
             coreDataModels: [],
             environmentVariables: [:],
@@ -383,8 +377,6 @@ extension FeatureManifest: MicroFeaturing {
             mergedBinaryType: .disabled,
             mergeable: false
         )
-        
-        return uiTestsTarget
     }
     
     public var example: Target {
@@ -414,7 +406,7 @@ extension FeatureManifest: MicroFeaturing {
             featureTargetDependencies.append(TargetDependency.target(name: testingName))
         }
         
-        let exampleTarget = Target.target(
+        return Target.target(
             name: exampleName,
             destinations: destinations,
             product: exampleProduct,
@@ -428,7 +420,7 @@ extension FeatureManifest: MicroFeaturing {
             headers: nil,
             entitlements: nil,
             scripts: [],
-            dependencies: featureTargetDependencies + basicDependencies,
+            dependencies: featureTargetDependencies,
             settings: nil,
             coreDataModels: [],
             environmentVariables: [:],
@@ -438,8 +430,6 @@ extension FeatureManifest: MicroFeaturing {
             mergedBinaryType: .disabled,
             mergeable: false
         )
-        
-        return exampleTarget
     }
 }
 
@@ -469,7 +459,7 @@ extension FeatureManifest {
     
     var hasExampleModule: Bool {
         return adoptedModules.contains(where: {
-            if case .example = $0 {
+            if case MicroFeatureModuleType.example = $0 {
                 return true
             } else {
                 return false
@@ -485,7 +475,7 @@ extension FeatureManifest {
             return nil
         }
         
-        precondition(exampleModuleProducts.count <= 1, "You can't specify more than one example product.")
+        precondition(exampleModuleProducts.count <= 1, "You can't specify an example product more than one.")
         
         return exampleModuleProducts.first
     }
