@@ -114,6 +114,6 @@ The following may be arbitrary rules of only this plugin to easy construct µFea
 
 ## Compatibility
 
-- [Tuist](https://github.com/tuist/tuist) : 4.11.0 ~
+- 4.11.0 <= [Tuist](https://github.com/tuist/tuist) < 5.x.x
 
 
